@@ -1,0 +1,82 @@
+import numpy as np
+from scipy.stats import ttest_ind, wilcoxon, shapiro, normaltest
+
+
+class ParametricTests:
+    def __init__(self, control, test, alpha=0.05):
+        self.control = control
+        self.test = test
+        self.alpha = alpha
+    
+    def t_test(self):
+        """
+        Performs a two-sample t-test on the control and test groups.
+        Returns the p-value and whether or not the null hypothesis was rejected.
+        """
+        t_statistic, p_value = ttest_ind(self.control, self.test)
+        if p_value < self.alpha:
+            return p_value, True
+        else:
+            return p_value, False
+    
+    def shapiro_test(self):
+        """
+        Performs a Shapiro-Wilk test on the control and test groups.
+        Returns the p-value and whether or not the null hypothesis was rejected.
+        """
+        _, p_value_control = shapiro(self.control)
+        _, p_value_test = shapiro(self.test)
+        if p_value_control < self.alpha or p_value_test < self.alpha:
+            return min(p_value_control, p_value_test), True
+        else:
+            return min(p_value_control, p_value_test), False
+    
+    def normal_test(self):
+        """
+        Performs a normality test on the control and test groups using the D'Agostino-Pearson test.
+        Returns the p-value and whether or not the null hypothesis was rejected.
+        """
+        _, p_value_control = normaltest(self.control)
+        _, p_value_test = normaltest(self.test)
+        if p_value_control < self.alpha or p_value_test < self.alpha:
+            return min(p_value_control, p_value_test), True
+        else:
+            return min(p_value_control, p_value_test), False
+
+
+class NonParametricTests:
+    def __init__(self, control, test, alpha=0.05):
+        self.control = control
+        self.test = test
+        self.alpha = alpha
+    
+    def wilcoxon_test(self):
+        """
+        Performs a Wilcoxon signed-rank test on the control and test groups.
+        Returns the p-value and whether or not the null hypothesis was rejected.
+        """
+        statistic, p_value = wilcoxon(self.control, self.test)
+        if p_value < self.alpha:
+            return p_value, True
+        else:
+            return p_value, False
+
+
+def test_control_vs_test(control, test, alpha=0.05):
+    """
+    Tests the control and test groups using all parametric and non-parametric statistical significance tests.
+    Returns a dictionary with the results of the tests.
+    """
+    parametric_tests = ParametricTests(control, test, alpha)
+    non_parametric_tests = NonParametricTests(control, test, alpha)
+    
+    t_test_pvalue, t_test_rejected = parametric_tests.t_test()
+    shapiro_pvalue, shapiro_rejected = parametric_tests.shapiro_test()
+    normal_pvalue, normal_rejected = parametric_tests.normal_test()
+    wilcoxon_pvalue, wilcoxon_rejected = non_parametric_tests.wilcoxon_test()
+    
+    return {
+        "t-test": {"p-value": t_test_pvalue, "rejected": t_test_rejected},
+        "Shapiro-Wilk test": {"p-value": shapiro_pvalue, "rejected": shapiro_rejected},
+        "D'Agostino-Pearson test": {"p-value": normal_pvalue, "rejected": normal_rejected},
+        "Wilco
