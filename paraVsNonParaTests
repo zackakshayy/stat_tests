@@ -60,6 +60,28 @@ class NonParametricTests:
             return p_value, True
         else:
             return p_value, False
+         
+    def perform_wilcoxon_signed_rank_test(self, alpha=0.05):
+        """
+        Performs a Wilcoxon signed-rank test on the control and test groups.
+        Returns the p-value and whether or not the null hypothesis was rejected.
+        """
+        p_value = wilcoxon(self.control_group, self.test_group)[1]
+        if p_value < alpha:
+            return p_value, True
+        else:
+            return p_value, False
+        
+    def perform_kruskal_wallis_test(self, alpha=0.05):
+        """
+        Performs a Kruskal-Wallis test on the control and test groups.
+        Returns the p-value and whether or not the null hypothesis was rejected.
+        """
+        p_value = kruskal(self.control_group, self.test_group)[1]
+        if p_value < alpha:
+            return p_value, True
+        else:
+            return p_value, False
 
 
 def test_control_vs_test(control, test, alpha=0.05):
